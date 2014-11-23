@@ -8,15 +8,15 @@ class SpreadBoard : public IterativeRobot{
 	static const int MOTOR_TWO = 2;
 	static const int MOTOR_THREE = 3;
 	
+	static const int GYRO_ANALOG = 1;
 	
-	
-	
+	Gyro * gyro;
 	Victor * motor_1;
 	Victor * motor_2;
 	Victor * motor_3;
 	Gamepad * pilot;
 	
-	
+	DriverStationLCD * lcd;
 	
 void SpreadBoard::RobotInit() {
 	
@@ -25,6 +25,11 @@ void SpreadBoard::RobotInit() {
 	motor_3 = new Victor(MOTOR_THREE);
 	
 	pilot = new Gamepad(1);
+	
+	gyro = new Gyro(GYRO_ANALOG);
+	gyro->SetSensitivity(0.007f); //=7 mV/degree/sec
+	
+	lcd = DriverStationLCD::GetInstance();
 }
 
 
@@ -49,25 +54,16 @@ void SpreadBoard::TeleopInit() {
 
 
 void SpreadBoard::TeleopPeriodic() {
+	motor_1->Set(pilot->GetLeftY());
+	motor_2->Set(pilot->GetLeftX());
+	motor_3->Set(pilot->GetRightY());
 	
-	if (pilot->GetNumberedButton(3)){
-		motor_1->Set(1.0);
-	} else {
-		motor_1->Set(0.0);
-	}
-	if (pilot->GetNumberedButton(4)){
-		motor_2->Set(1.0);
-	} else {
-		motor_2->Set(0.0);
-	}
-	if (pilot->GetNumberedButton(2)){
-		motor_3->Set(1.0);
-	} else {
-		motor_3->Set(0.0);
-	}
+	float angle = gyro->GetAngle();
+	lcd->PrintfLine(DriverStationLCD::kUser_Line1, "angle: %f", angle);
+	
+	lcd->UpdateLCD();
 }
-
-
+	
 void SpreadBoard::TestInit() {
 }
 
